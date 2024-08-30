@@ -3,28 +3,21 @@ package org.firstinspires.ftc.teamcode.roadrunner;
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.DualNum;
-import com.acmerobotics.roadrunner.Time;
-import com.acmerobotics.roadrunner.Twist2dDual;
-import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.Vector2dDual;
-import com.acmerobotics.roadrunner.ftc.Encoder;
-import com.acmerobotics.roadrunner.ftc.FlightRecorder;
-import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
-import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
-import com.acmerobotics.roadrunner.ftc.RawEncoder;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.acmerobotics.roadrunner.*;
+import com.acmerobotics.roadrunner.ftc.*;
+import com.qualcomm.robotcore.hardware.*;
 
 import org.firstinspires.ftc.teamcode.roadrunner.messages.ThreeDeadWheelInputsMessage;
 
 @Config
 public final class ThreeDeadWheelLocalizer implements Localizer {
     public static class Params {
-        public double leftDeadWheelYTicks  = 0.0; // y position of the first parallel encoder (in tick units)
-        public double rightDeadWheelYTicks = 1.0; // y position of the second parallel encoder (in tick units)
-        public double frontDeadWheelXTicks = 0.0; // x position of the perpendicular encoder (in tick units)
+        // Y position of the first parallel encoder (in tick units)
+        public double leftDeadWheelYTicks  = 0.0;
+        // Y position of the second parallel encoder (in tick units)
+        public double rightDeadWheelYTicks = 1.0;
+        // X position of the perpendicular encoder (in tick units)
+        public double frontDeadWheelXTicks = 0.0;
     }
 
     public static Params PARAMS = new Params();
@@ -37,9 +30,12 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
     private boolean initialized;
 
     public ThreeDeadWheelLocalizer(@NonNull HardwareMap hardwareMap, double inPerTick) {
-        leftDeadWheel  = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "BackLeftDriveMotor")));
-        rightDeadWheel = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "BackRightDriveMotor")));
-        frontDeadWheel = new OverflowEncoder(new RawEncoder(hardwareMap.get(DcMotorEx.class, "IntakeMotor")));
+        leftDeadWheel = new OverflowEncoder(
+                new RawEncoder(hardwareMap.get(DcMotorEx.class, "BackLeftDriveMotor")));
+        rightDeadWheel = new OverflowEncoder(
+                new RawEncoder(hardwareMap.get(DcMotorEx.class, "BackRightDriveMotor")));
+        frontDeadWheel = new OverflowEncoder(
+                new RawEncoder(hardwareMap.get(DcMotorEx.class, "IntakeMotor")));
 
         leftDeadWheel.setDirection(DcMotorSimple.Direction.REVERSE);
         frontDeadWheel.setDirection(DcMotorSimple.Direction.REVERSE);
