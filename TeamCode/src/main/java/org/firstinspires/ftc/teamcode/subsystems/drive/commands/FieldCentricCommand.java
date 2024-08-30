@@ -33,6 +33,7 @@ public final class FieldCentricCommand extends CommandBase {
         this.driveSupplier  = driveSupplier;
         this.strafeSupplier = strafeSupplier;
         this.turnSupplier   = turnSupplier;
+
         addRequirements(driveSubsystem);
     }
 
