@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.constants.ConstantsLoader;
 
 @TeleOp(name = "Test - Constants Load", group = "Test")
-public class ConstantsLoadTest extends CommandOpMode {
+public final class ConstantsLoadTest extends CommandOpMode {
 
     @Override public void initialize() {
         new ConstantsLoader(telemetry).load();

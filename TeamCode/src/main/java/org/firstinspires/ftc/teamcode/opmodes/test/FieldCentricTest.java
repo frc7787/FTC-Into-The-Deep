@@ -23,9 +23,7 @@ public class FieldCentricTest extends CommandOpMode {
                         driverGamepad::getLeftX,
                         driverGamepad::getLeftY,
                         driverGamepad::getRightY
-                ),
-                new RunCommand(driveSubsystem::debug),
-                new RunCommand(telemetry::update)
+                )
         );
     }
 }

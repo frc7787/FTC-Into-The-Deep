@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.constants.ConstantsSaver;
 
 @TeleOp(name = "Test - Constants Save", group = "Test")
-public class ConstantsSaveTest extends CommandOpMode {
+public final class ConstantsSaveTest extends CommandOpMode {
 
     @Override public void initialize() {
        new ConstantsSaver(telemetry).save();

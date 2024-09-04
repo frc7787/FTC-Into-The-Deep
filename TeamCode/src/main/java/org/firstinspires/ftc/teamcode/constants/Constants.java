@@ -7,12 +7,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public final class Constants {
 
+    /// Contains hardcoded file locations that are commenly used
     public static class FileConstants {
         @SuppressLint("sdCardPath")
         public static final String CONSTANTS_FILE_LOCATION
             = "/sdcard/FIRST/java/src/org/firstinspires/ftc/teamcode/Constants/";
     }
 
+    /// Contains all drive base constants. Not to be confused with 
+    //  {@link RoadrunnerConstants}
     public static class DrivebaseConstants {
         public static String FRONT_LEFT_DRIVE_MOTOR_NAME  = "frontLeftDriveMotor";
         public static String FRONT_RIGHT_DRIVE_MOTOR_NAME = "frontRightDriveMotor";
