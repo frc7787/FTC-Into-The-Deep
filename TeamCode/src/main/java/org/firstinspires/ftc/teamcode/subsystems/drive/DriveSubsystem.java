@@ -6,12 +6,12 @@ import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit.AMPS;
 import static org.firstinspires.ftc.teamcode.constants.Constants.DrivebaseConstants.*;
-import static org.firstinspires.ftc.teamcode.constants.Constants.RoadrunnerConstants.IMU_NAME;
-import static org.firstinspires.ftc.teamcode.constants.Constants.RoadrunnerConstants.IMU_ORIENTATION;
+import static org.firstinspires.ftc.teamcode.constants.Constants.LocalizerConstants.OPTICAL_ODOMETRY_NAME;
 
 import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorImplEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -19,6 +19,9 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.purepursuit.localization.Localizer;
+import org.firstinspires.ftc.teamcode.purepursuit.localization.OpticalLocalizer;
 import org.firstinspires.ftc.teamcode.utility.MotorUtility;
 
 /**
@@ -41,6 +44,7 @@ public final class DriveSubsystem extends SubsystemBase {
 
     private final Telemetry telemetry;
     private final DcMotorImplEx[] motors;
+    public final Localizer localizer;
 
     /**
      * Constructs a new drive subsystems
@@ -51,9 +55,12 @@ public final class DriveSubsystem extends SubsystemBase {
 
         HardwareMap hardwareMap = opMode.hardwareMap;
 
+        localizer
+                = new OpticalLocalizer(hardwareMap.get(SparkFunOTOS.class, OPTICAL_ODOMETRY_NAME));
+
         imu = hardwareMap.get(IMU.class, IMU_NAME);
 
-        imu.initialize(new IMU.Parameters(IMU_ORIENTATION));
+        imu.initialize(IMU_PARAMETERS);
         imu.resetYaw();
 
         frontLeftMotor  = hardwareMap.get(DcMotorImplEx.class, FRONT_LEFT_DRIVE_MOTOR_NAME);

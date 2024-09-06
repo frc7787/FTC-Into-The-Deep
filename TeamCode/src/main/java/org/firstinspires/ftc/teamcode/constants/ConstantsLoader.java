@@ -3,13 +3,14 @@ package org.firstinspires.ftc.teamcode.constants;
 import static org.firstinspires.ftc.teamcode.constants.Constants.FileConstants.*;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.*;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.*;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.constants.exceptions.MalformedPropertyException;
+import org.firstinspires.ftc.teamcode.constants.exceptions.NoAssociatedConstantsFileException;
 import org.opencv.core.Scalar;
 
 import java.io.*;
@@ -17,53 +18,6 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.*;
 
-/**
- * <h1>Constants Loader</h1>
- * <p>
- *     The constants loader class attempts to override the values located in each static nested
- *     class found within the {@link Constants} using values found in text files corresponding names
- *     located at the following path:
- * </p>
- * <p>
- *     /sdcard/FIRST/java/src/org/firstinspires/ftc/teamcode/Constants/
- * </p>
- * <p>
- *     If a static nested class doesn't have a corresponding text file, it will be silently ignored.
- * </p>
- * <p>
- *     When the constants loader locates a file that corresponds with one of the nested constants
- *     classes, it will iterate through each field of the class and attempt to find a matching field
- *     in the file. In order to be recognized by the ConstantsLoader the field in the file must be
- *     formatted as follows:
- * </p>
- * <p>
- *     FIELD_NAME=VALUE
- * </p>
- * <p>
- *     One exception to this rule is Pose2D which must be formatted as follows:
- * </p>
- * <p>
- *     FIELD_NAME=Pose2D(X,Y,HEADING)
- * </p>
- * <p>
- *     The flavour of Pose2D (Roadrunner, SparkFunOTOS, etc) doesn't matter as the value in the text
- *     file will be assigned to the type of the field in the nested class.
- * </p>
- * <p>
- *     Any of the following conditions will cause the ConstantsLoader to skip overwriting a field:
- *     <ul>
- *         <li>The class field has no corresponding file field and vice-versa.</li>
- *         <li>The file field is not formatted as shown above.</li>
- *         <li>The file field and class field types mismatch.</li>
- *         <li>The class field is not static, not public, or final.</li>
- *     </ul>
- * </p>
- * <p>
- *     By default all failures to overwrite fields in the nested constants classes are ignored
- *     silently. However, in some instances displaying the reason can be useful if you are
- *     debugging. To enable this feature, call the constructor with the opModes telemetry object.
- * </p>
- */
 public final class ConstantsLoader {
     private final boolean debug;
 
@@ -76,7 +30,6 @@ public final class ConstantsLoader {
     public ConstantsLoader() {
         this.debugger = new Debugger(null);
         this.debug    = false;
-        MalformedPropertyException.debug = false;
     }
 
     /**
@@ -86,16 +39,12 @@ public final class ConstantsLoader {
     public ConstantsLoader(@NonNull Telemetry telemetry) {
         this.debug    = true;
         this.debugger = new Debugger(telemetry);
-        MalformedPropertyException.debug = true;
     }
 
-
-    @NonNull private List<File> getConstantsFilesFromOnbotJava() {
+    @NonNull private List<File> loadConstantsFiles() {
         File constantsDirectory = new File(CONSTANTS_FILE_LOCATION);
 
         if (constantsDirectory.isFile()) {
-            if (!debug) return new ArrayList<>();
-
             String issue = "Failed To Load Constants File Directory"
                          + "\nReason: Conflicting File Constants in OnBot Java Directory."
                          + "\nHelp: Remove Directory Named \"Constants\"";
@@ -108,8 +57,6 @@ public final class ConstantsLoader {
         File[] constantsDirectoryFiles = constantsDirectory.listFiles();
 
         if (constantsDirectoryFiles == null) {
-            if (!debug) return new ArrayList<>();
-
             String issue = "Failed To Load Constants Directory"
                          + "\nReason: No Files Were Found At The Specified Constants Directory";
             debugger.addMessage(issue);
@@ -122,43 +69,50 @@ public final class ConstantsLoader {
 
         if (textFiles.isEmpty()) {
             String issue = "Failed To Load Constants Directory"
-                         + "\nReason: No Files With Extension \".txt\" were found.";
-            if (debug) debugger.addMessage(issue);
+                         + "\nReason: No Text Files Found";
+            debugger.addMessage(issue);
         }
         return textFiles;
     }
 
-    private @NonNull Optional<Class<?>> matchConstantsClassToConstantsFile(
+    private @NonNull Class<?> matchClassToFile(
             @NonNull String fileName
-    ) {
+    ) throws NoAssociatedConstantsFileException {
         for (Class<?> clazz : Constants.class.getClasses()) {
             if (!Modifier.isStatic(clazz.getModifiers())) continue;
 
-            if (clazz.getSimpleName().equals(fileName)) return Optional.of(clazz);
+            if (clazz.getSimpleName().equals(fileName)) return clazz;
         }
         String issue = "Failed To Match Constants Class With Name: " + fileName
                      + "\nNote: Non-Static Nested Classes Are Skipped";
-        if (debug) debugger.addMessage(issue);
-        return Optional.empty();
+        debugger.addMessage(issue);
+
+        throw new NoAssociatedConstantsFileException(fileName);
     }
 
-    private void populateClassFromPropertiesFile(
-            @NonNull Class<?> clazz,
-            @NonNull String fileName
-    ) {
+    private void loadClass(@NonNull Class<?> clazz, @NonNull String fileName) {
         Properties properties = new Properties();
 
         try {
             properties.load(new FileInputStream(CONSTANTS_FILE_LOCATION + fileName));
-            for (Field field : clazz.getFields()) { populateField(field, properties); }
+            for (Field field : clazz.getFields()) {
+                try {
+                    loadField(field, properties);
+                } catch (MalformedPropertyException exception) {
+                    debugger.addMalformedPropertyException(exception);
+                }
+            }
         } catch (IOException ioException) {
             String issue = "Failed To Load Constants File " + fileName
                          + "\nReason: " + ioException.getMessage();
-            if (debug) debugger.addMessage(issue);
+            debugger.addMessage(issue);
         }
     }
 
-    private void populateField(@NonNull Field field, @NonNull Properties properties) {
+    private void loadField(
+            @NonNull Field field,
+            @NonNull Properties properties
+    ) throws MalformedPropertyException {
         String fieldName = field.getName();
 
         if (!properties.containsKey(fieldName) || !isLoadable(field)) return;
@@ -166,95 +120,71 @@ public final class ConstantsLoader {
         try {
             switch (SupportedType.fieldToType(field)) {
                 case FLOAT:
-                    field.setFloat(fieldName, loadFloat(fieldName, properties));
+                    float floatValue = Float.parseFloat(properties.getProperty(fieldName));
+                    field.setFloat(fieldName, floatValue);
                     break;
                 case DOUBLE:
-                    field.setDouble(fieldName, loadDouble(fieldName, properties));
+                    double doubleValue = Double.parseDouble(properties.getProperty(fieldName));
+                    field.setDouble(fieldName, doubleValue);
                     break;
                 case BYTE:
-                    field.setByte(fieldName, loadByte(fieldName, properties));
+                    byte byteValue = Byte.parseByte(properties.getProperty(fieldName));
+                    field.setByte(fieldName, byteValue);
                     break;
                 case SHORT:
-                    field.setShort(fieldName, loadShort(fieldName, properties));
+                    short shortValue = Short.parseShort(properties.getProperty(fieldName));
+                    field.setShort(fieldName, shortValue);
                     break;
                 case INTEGER:
-                    field.setInt(fieldName, loadInteger(fieldName, properties));
+                    int intValue = Integer.parseInt(properties.getProperty(fieldName));
+                    field.setInt(fieldName, intValue);
                     break;
                 case LONG:
-                    field.setLong(fieldName, loadLong(fieldName, properties));
+                    long longValue = Long.parseLong(properties.getProperty(fieldName));
+                    field.setLong(fieldName, longValue);
                     break;
                 case BOOLEAN:
-                    field.setBoolean(field, loadBoolean(fieldName, properties));
+                    boolean booleanValue = Boolean.parseBoolean(properties.getProperty(fieldName));
+                    field.setBoolean(field, booleanValue);
                     break;
                 case CHAR:
-                    field.setChar(field, loadCharacter(fieldName, properties));
+                    field.setChar(field, properties.getProperty(fieldName).toCharArray()[0]);
                 case STRING:
-                    field.set(fieldName, loadString(fieldName, properties));
+                    field.set(fieldName, properties.getProperty(fieldName));
                     break;
                 case SERVO_DIRECTION:
-                    try {
-                        Servo.Direction servoDirection = loadServoDirection(fieldName, properties);
-                        field.set(fieldName, servoDirection);
-                    } catch (MalformedPropertyException ignored) { return; }
+                    field.set(fieldName, loadServoDirection(fieldName, properties));
                     break;
                 case MOTOR_DIRECTION:
-                    try {
-                        DcMotorSimple.Direction motorDirection
-                                = loadMotorDirection(fieldName, properties);
-                        field.set(fieldName, motorDirection);
-                    } catch (MalformedPropertyException ignored) { return; }
+                    field.set(fieldName, loadMotorDirection(fieldName, properties));
                     break;
                 case ZERO_POWER_BEHAVIOUR:
-                    try {
-                        DcMotor.ZeroPowerBehavior zeroPowerBehavior
-                                = loadZeroPowerBehaviour(fieldName, properties);
-                        field.set(fieldName, zeroPowerBehavior);
-                    } catch (MalformedPropertyException ignored) { return; }
+                    field.set(fieldName, loadZeroPowerBehaviour(fieldName, properties));
                     break;
                 case SPARK_FUN_POSE_2D:
-                    try {
-                        SparkFunOTOS.Pose2D pose2D
-                                = loadSparkFunPose2D(fieldName, properties);
-                        field.set(fieldName, pose2D);
-                    } catch (MalformedPropertyException ignored) { return; }
+                    field.set(fieldName, loadSparkFunPose2D(fieldName, properties));
                     break;
                 case RUN_MODE:
-                    try {
-                        DcMotor.RunMode runMode
-                                = loadRunMode(fieldName, properties);
-                        field.set(fieldName, runMode);
-                    } catch (MalformedPropertyException ignored) { return; }
+                    field.set(fieldName, loadRunMode(fieldName, properties));
                     break;
                 case SCALAR:
-                    try {
-                        Scalar scalar
-                                = loadScalar(fieldName, properties);
-                        field.set(fieldName, scalar);
-                    } catch (MalformedPropertyException ignored) { return; }
+                    field.set(fieldName, loadScalar(fieldName, properties));
                     break;
                 case LOGO_FACING_DIRECTION:
-                    try {
-                        LogoFacingDirection logoFacingDirection
-                                = loadLogoFacingDirection(fieldName, properties);
-                        field.set(fieldName, logoFacingDirection);
-                    } catch (MalformedPropertyException ignored) { return; }
+                    field.set(fieldName, loadLogoFacingDirection(fieldName, properties));
                     break;
                 case USB_FACING_DIRECTION:
-                    try {
-                        UsbFacingDirection usbFacingDirection
-                            = loadUsbFacingDirection(fieldName, properties);
-                        field.set(fieldName, usbFacingDirection);
-                    } catch (MalformedPropertyException ignored) { return; }
+                    field.set(fieldName, loadUsbFacingDirection(fieldName, properties));
                     break;
                 case UNSUPPORTED:
-                     if (debug) {
-                         String message = "Failed To Load Field " + fieldName
-                                 + "\nReason: Field Type Not Supported";
-                         debugger.addMessage(message);
-                     }
+                    String issue = "Failed To Load Field " + fieldName
+                                   + "\nReason: Field Type Not Supported";
+                    debugger.addMessage(issue);
                 break;
             }
-        } catch (IllegalAccessException ignored) {}
+        } catch (IllegalAccessException ignored) {
+            // This is prevented by the isLoadable check at the beginning of the function.
+        }
     }
 
     /**
@@ -271,17 +201,20 @@ public final class ConstantsLoader {
      * </p>
      */
     public void load() {
-        for (File file : getConstantsFilesFromOnbotJava()) {
+        for (File file : loadConstantsFiles()) {
             if (!isTextFile(file)) continue;
 
             String fileName = file.getName();
 
-            Optional<Class<?>> constantsClass
-                    = matchConstantsClassToConstantsFile(stripFileExtension(fileName));
+            try {
+                loadClass(matchClassToFile(stripFileExtension(fileName)), fileName);
+            } catch (NoAssociatedConstantsFileException exception) {
+                String issue = "Failed To Load File"
+                             + "\nReason: No Constants File Associated With File Name "
+                             + exception.fileName;
 
-            if (!constantsClass.isPresent()) continue;
-
-            populateClassFromPropertiesFile(constantsClass.get(), fileName);
+                debugger.addMessage(issue);
+            }
         }
 
         if (debug) debugger.displayAll();
@@ -296,57 +229,7 @@ public final class ConstantsLoader {
     }
 
     @NonNull private String stripFileExtension(@NonNull String fileName) {
-        int extensionOffset = fileName.lastIndexOf('.');
-
-        return fileName.substring(0, extensionOffset);
-    }
-
-    private float loadFloat(@NonNull String key, @NonNull Properties properties) {
-        return Float.parseFloat(properties.getProperty(key));
-    }
-
-    private double loadDouble(
-            @NonNull String key,
-            @NonNull Properties properties
-    ) {
-        return Double.parseDouble(properties.getProperty(key));
-    }
-
-    private byte loadByte(@NonNull String key, @NonNull Properties properties) {
-        return Byte.parseByte(properties.getProperty(key));
-    }
-
-    private short loadShort(@NonNull String key, @NonNull Properties properties) {
-        return Short.parseShort(properties.getProperty(key));
-    }
-
-    private int loadInteger(@NonNull String key, @NonNull Properties properties) {
-        return Integer.parseInt(properties.getProperty(key));
-    }
-
-    private long loadLong(@NonNull String key, @NonNull Properties properties) {
-        return Long.parseLong(properties.getProperty(key));
-    }
-
-    private boolean loadBoolean(
-            @NonNull String key,
-            @NonNull Properties properties
-    ) {
-        return Boolean.parseBoolean(properties.getProperty(key));
-    }
-
-    private char loadCharacter(
-            @NonNull String key,
-            @NonNull Properties properties
-    ) {
-       return properties.getProperty(key).toCharArray()[0];
-    }
-
-    @NonNull private String loadString(
-            @NonNull String key,
-            @NonNull Properties properties
-    ) {
-        return properties.getProperty(key);
+        return fileName.substring(0, fileName.lastIndexOf('.'));
     }
 
     @NonNull private Servo.Direction loadServoDirection(
@@ -365,9 +248,7 @@ public final class ConstantsLoader {
                 throw new MalformedPropertyException(
                         servoDirectionString,
                         "Failed To Parse Direction",
-                        key,
-                        debugger
-                );
+                        key);
         }
     }
 
@@ -387,8 +268,7 @@ public final class ConstantsLoader {
                 throw new MalformedPropertyException(
                         motorDirectionString,
                         "Failed To Parse Direction",
-                        key,
-                        debugger
+                        key
                 );
         }
     }
@@ -410,8 +290,7 @@ public final class ConstantsLoader {
                 throw new MalformedPropertyException(
                         zeroPowerBehaviorString,
                         "Failed To Parse ZeroPowerBehavior",
-                        key,
-                        debugger
+                        key
                 );
         }
     }
@@ -424,19 +303,22 @@ public final class ConstantsLoader {
 
         switch (runModeString.toLowerCase()) {
             case "run_to_position":
+            case "runtoposition":
                return DcMotor.RunMode.RUN_TO_POSITION;
             case "run_using_encoders":
+            case "runusingencoders":
                 return DcMotor.RunMode.RUN_USING_ENCODER;
             case "run_without_encoders":
+            case "runwithoutencoders":
                 return DcMotor.RunMode.RUN_WITHOUT_ENCODER;
             case "stop_and_reset_encoders":
+            case "stopandresetencoders":
                 return DcMotor.RunMode.STOP_AND_RESET_ENCODER;
             default:
                 throw new MalformedPropertyException(
                         runModeString,
                         "Failed To Parse As RunMode",
-                        key,
-                        debugger
+                        key
                 );
         }
     }
@@ -462,10 +344,9 @@ public final class ConstantsLoader {
                 return UsbFacingDirection.FORWARD;
             default:
                 throw new MalformedPropertyException(
-                       USBFacingDirectionString,
-                       "Failed To Parse As UsbFacingDirection",
-                       key,
-                       debugger
+                        USBFacingDirectionString,
+                        "Failed To Parse As UsbFacingDirection",
+                        key
                 );
         }
     }
@@ -493,8 +374,7 @@ public final class ConstantsLoader {
                throw new MalformedPropertyException(
                        logoFacingString,
                        "Failed To Parse As LogoFacingDirection",
-                       key,
-                       debugger
+                       key
                );
        }
     }
@@ -505,28 +385,16 @@ public final class ConstantsLoader {
     ) throws MalformedPropertyException {
         String poseString = properties.getProperty(key);
 
-        double[] poseValues;
-
         try {
-            poseValues = parseThreePartValue(poseString);
+            double[] poseValues = parseThreePartValue(poseString);
+            return new SparkFunOTOS.Pose2D(poseValues[0], poseValues[1], poseValues[2]);
         } catch (NumberFormatException numberFormatException) {
-            String message;
-
-            if (numberFormatException.getMessage() == null) {
-                message = numberFormatException.getMessage();
-            } else {
-                message = "Failed To Parse As Number";
-            }
-
             throw new MalformedPropertyException(
-                   poseString,
-                   message,
-                   key,
-                   debugger
+                    poseString,
+                    numberFormatException.getMessage(),
+                    key
             );
         }
-
-        return new SparkFunOTOS.Pose2D(poseValues[0], poseValues[1], poseValues[2]);
     }
 
     @NonNull private Scalar loadScalar(
@@ -540,19 +408,10 @@ public final class ConstantsLoader {
         try {
             scalarValues = parseThreePartValue(scalarString);
         } catch (NumberFormatException numberFormatException) {
-            String message;
-
-            if (numberFormatException.getMessage() != null) {
-                message = numberFormatException.getMessage();
-            } else {
-                message = "Failed To Parse As Number";
-            }
-
             throw new MalformedPropertyException(
                     scalarString,
-                    message,
-                    key,
-                    debugger
+                    numberFormatException.getMessage(),
+                    key
             );
         }
 
@@ -596,51 +455,9 @@ public final class ConstantsLoader {
             if (!fieldIsStatic) message += "\nReason: Field Is No Static";
             if (fieldIsFinal)   message += "\nReason: Field Is Final";
 
-            if (debug) debugger.addMessage(message);
+            debugger.addMessage(message);
             return false;
         }
         return true;
-    }
-
-    private static class MalformedPropertyException extends Exception {
-        public static boolean debug = false;
-
-        public MalformedPropertyException(
-                @NonNull String value,
-                @NonNull String reason,
-                @NonNull String name,
-                @NonNull Debugger debugger
-        ) {
-            super("Property " + name + " Cannot Be Loaded");
-
-            if (!debug) return;
-
-            String issue = "Field " + name + " Cannot Be Loaded"
-                         + "\nReason: Value [" + value + "] Is Malformed | " + reason;
-
-            debugger.addMessage(issue);
-        }
-    }
-
-    private static class Debugger {
-        private final ArrayList<String> output;
-        private final Telemetry telemetry;
-
-        public Debugger(@Nullable Telemetry telemetry) {
-            this.output    = new ArrayList<>();
-            this.telemetry = telemetry;
-        }
-
-        public void addMessage(@NonNull String message) {
-            output.add(message);
-        }
-
-        public void displayAll() {
-            if (telemetry == null) return;
-
-            telemetry.addData("Number Of Issues", output.size());
-
-            for (String message: output) { telemetry.addLine("\n" + message); }
-        }
     }
 }

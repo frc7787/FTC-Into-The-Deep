@@ -3,73 +3,50 @@ package org.firstinspires.ftc.teamcode.constants;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.IMU;
 
 public final class Constants {
 
-    /// Contains hardcoded file locations that are commenly used
     public static class FileConstants {
         @SuppressLint("sdCardPath")
         public static final String CONSTANTS_FILE_LOCATION
             = "/sdcard/FIRST/java/src/org/firstinspires/ftc/teamcode/Constants/";
     }
 
-    /// Contains all drive base constants. Not to be confused with 
-    //  {@link RoadrunnerConstants}
     public static class DrivebaseConstants {
         public static String FRONT_LEFT_DRIVE_MOTOR_NAME  = "frontLeftDriveMotor";
         public static String FRONT_RIGHT_DRIVE_MOTOR_NAME = "frontRightDriveMotor";
         public static String BACK_LEFT_DRIVE_MOTOR_NAME   = "backLeftDriveMotor";
         public static String BACK_RIGHT_DRIVE_MOTOR_NAME  = "backRightDriveMotor";
 
+        public static String IMU_NAME = "imu";
+        public static IMU.Parameters IMU_PARAMETERS = new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
+                        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                )
+        );
+
         public static double DRIVE_DEAD_ZONE  = 0.05;
         public static double STRAFE_DEAD_ZONE = 0.05;
         public static double TURN_DEAD_ZONE   = 0.05;
     }
 
-    public static class ServoTestConstants {
-        public static String TEST_SERVO_NAME               = "TestServo";
-        public static double TEST_SERVO_START_POSITION     = 0.00;
-        public static Servo.Direction TEST_SERVO_DIRECTION = Servo.Direction.FORWARD;
-    }
+    public static class LocalizerConstants {
+        // Dead Wheels
+        public static String FRONT_DEAD_WHEEL_NAME = "intakeMotor";
+        public static String LEFT_DEAD_WHEEL_NAME  = DrivebaseConstants.BACK_LEFT_DRIVE_MOTOR_NAME;
+        public static String RIGHT_DEAD_WHEEL_NAME = DrivebaseConstants.BACK_RIGHT_DRIVE_MOTOR_NAME;
 
-    public static class RoadrunnerConstants {
-        public static String IMU_NAME = "imu";
+        public static double TRACK_WIDTH_INCHES              = 11.2;
+        public static double DEAD_WHEEL_DIAMETER_INCHES      = 1.88976;
+        public static double DEAD_WHEEL_CIRCUMFERENCE_INCHES = Math.PI * DEAD_WHEEL_DIAMETER_INCHES;
+        public static double ENCODER_TICKS_PER_REVOLUTION    = 2000.0;
 
-        public static RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIRECTION
-                = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        public static RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIRECTION
-                = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
-
-        public static RevHubOrientationOnRobot IMU_ORIENTATION =
-            new RevHubOrientationOnRobot(LOGO_FACING_DIRECTION, USB_FACING_DIRECTION);
-
-        // Drive Model Parameters
-        public static double INCHES_PER_TICK = 1;
-        public static double LATERAL_INCHES_PER_TICK= INCHES_PER_TICK;
-        public static double TRACK_WIDTH_TICKS = 0;
-
-        // Feedforward Parameters (in tick units)
-        public static double KS = 0;
-        public static double KV = 0;
-        public static double KA = 0;
-
-        // Path Profile Parameters (inches/s)
-        public static double MAX_WHEEL_VELOCITY       = 50;
-        public static double MIN_PROFILE_ACCELERATION = -30;
-        public static double MAX_PROFILE_ACCELERATION = 50;
-
-        // Turn Profile Parameters (Radians)
-        public static double MAX_ANGULAR_VELOCITY_RADIANS = Math.PI;
-        public static double MAX_ANGULAR_ACCELERATION     = Math.PI;
-
-        // Path Controller Gains
-        public static double AXIAL_GAIN   = 0.0;
-        public static double LATERAL_GAIN = 0.0;
-        public static double HEADING_GAIN = 0.0;
-
-        public static double AXIAL_VELOCITY_GAIN   = 0.0;
-        public static double LATERAL_VELOCITY_GAIN = 0.0;
-        public static double HEADING_VELOCITY_GAIN = 0.0;
+        // Spark Fun
+        public static String OPTICAL_ODOMETRY_NAME = "sparkFunOTOS";
+        public static double LINEAR_SCALAR = 1.0;
+        public static double ANGULAR_SCALAR = 1.0;
+        public static int  IMU_CALIBRATION_SAMPLES = 255;
     }
 }

@@ -5,6 +5,7 @@
         <LynxModule name="Expansion Hub 2" port="2">
             <goBILDA5202SeriesMotor name="backRightDriveMotor" port="1"/>
             <goBILDA5202SeriesMotor name="frontRightDriveMotor" port="2"/>
+            <goBILDA5202SeriesMotor name="intakeMotor" port = "3"/>
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
             <goBILDA5202SeriesMotor name="frontLeftDriveMotor" port="0"/>
