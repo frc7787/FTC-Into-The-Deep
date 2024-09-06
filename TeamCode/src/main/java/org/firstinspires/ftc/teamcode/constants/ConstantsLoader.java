@@ -65,9 +65,7 @@ public final class ConstantsLoader {
                 .filter(this::isTextFile)
                 .collect(Collectors.toList());
 
-        if (textFiles.isEmpty()) {
-            debugger.addMessage("No Text Files Found");
-        }
+        if (textFiles.isEmpty()) debugger.addMessage("No Text Files Found");
 
         return textFiles;
     }
