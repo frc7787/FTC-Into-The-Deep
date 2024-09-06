@@ -57,9 +57,7 @@ public final class ConstantsLoader {
         File[] constantsDirectoryFiles = constantsDirectory.listFiles();
 
         if (constantsDirectoryFiles == null) {
-            String issue = "Failed To Load Constants Directory"
-                         + "\nReason: No Files Were Found At The Specified Constants Directory";
-            debugger.addMessage(issue);
+            debugger.addMessage("No Files Found In Constants Director");
             return new ArrayList<>();
         }
 
@@ -68,10 +66,9 @@ public final class ConstantsLoader {
                 .collect(Collectors.toList());
 
         if (textFiles.isEmpty()) {
-            String issue = "Failed To Load Constants Directory"
-                         + "\nReason: No Text Files Found";
-            debugger.addMessage(issue);
+            debugger.addMessage("No Text Files Found");
         }
+
         return textFiles;
     }
 
@@ -88,6 +85,43 @@ public final class ConstantsLoader {
         debugger.addMessage(issue);
 
         throw new NoAssociatedConstantsFileException(fileName);
+    }
+
+    /**
+     * <p>
+     *  Attempts to overwrite all of the values located in {@link Constants} with values found in
+     *  corresponding text files located at the following path:
+     * </p>
+     * <p>
+     *     /sdcard/FIRST/java/src/org/firstinspires/ftc/teamcode/Constants
+     * </p>
+     * <p>
+     *     By default all errors are silently ignored. To enable debug mode, pass the opModes
+     *     telemetry object into the constructor of the ConstantsLoader class.
+     * </p>
+     */
+    public void load() {
+        for (File file : loadConstantsFiles()) {
+            String fileName = file.getName();
+
+            if (!isTextFile(file)) {
+                String issue = "Skipped File " + fileName
+                        + "\nReason: Not A Text File";
+                debugger.addMessage(issue);
+                continue;
+            }
+
+            try {
+                loadClass(matchClassToFile(stripFileExtension(fileName)), fileName);
+            } catch (NoAssociatedConstantsFileException exception) {
+                String issue = "Skipped File"
+                        + "\nReason: No Constants File Associated With File Name "
+                        + exception.fileName;
+                debugger.addMessage(issue);
+            }
+        }
+
+        if (debug) debugger.displayAll();
     }
 
     private void loadClass(@NonNull Class<?> clazz, @NonNull String fileName) {
@@ -187,45 +221,9 @@ public final class ConstantsLoader {
         }
     }
 
-    /**
-     * <p>
-     *  Attempts to overwrite all of the values located in {@link Constants} with values found in
-     *  corresponding text files located at the following path:
-     * </p>
-     * <p>
-     *     /sdcard/FIRST/java/src/org/firstinspires/ftc/teamcode/Constants
-     * </p>
-     * <p>
-     *     By default all errors are silently ignored. To enable debug mode, pass the opModes
-     *     telemetry object into the constructor of the ConstantsLoader class.
-     * </p>
-     */
-    public void load() {
-        for (File file : loadConstantsFiles()) {
-            if (!isTextFile(file)) continue;
-
-            String fileName = file.getName();
-
-            try {
-                loadClass(matchClassToFile(stripFileExtension(fileName)), fileName);
-            } catch (NoAssociatedConstantsFileException exception) {
-                String issue = "Failed To Load File"
-                             + "\nReason: No Constants File Associated With File Name "
-                             + exception.fileName;
-
-                debugger.addMessage(issue);
-            }
-        }
-
-        if (debug) debugger.displayAll();
-    }
-
     private boolean isTextFile(@NonNull File file) {
         String fileName = file.getName();
-
-        int extensionPosition = fileName.lastIndexOf('.') + 1;
-
-        return fileName.substring(extensionPosition).equals("txt");
+        return fileName.substring(fileName.lastIndexOf('.') + 1).equals("txt");
     }
 
     @NonNull private String stripFileExtension(@NonNull String fileName) {
@@ -421,23 +419,20 @@ public final class ConstantsLoader {
     @NonNull private double[] parseThreePartValue(
             @NonNull String value
     ) throws NumberFormatException {
-        int indexOfFirstOpenParentheses   = value.indexOf('(');
-        int indexOfFirstClosedParentheses = value.indexOf(')');
-        int indexOfFirstComma             = value.indexOf(',');
-        int indexOfSecondComma            = value.indexOf(',', indexOfFirstComma + 1);
+        int indexOfOpenParentheses   = value.indexOf('(');
+        int indexOfClosedParentheses = value.indexOf(')');
+        int indexOfFirstComma        = value.indexOf(',');
+        int indexOfSecondComma       = value.indexOf(',', indexOfFirstComma + 1);
 
-        String valueOneString
-                = value.substring(indexOfFirstOpenParentheses + 1, indexOfFirstComma);
-        String valueTwoString
-                = value.substring(indexOfFirstComma + 1, indexOfSecondComma + 1);
-        String valueThreeString
-                = value.substring(indexOfSecondComma + 1, indexOfFirstClosedParentheses);
+        String valueOneString   = value.substring(indexOfOpenParentheses + 1, indexOfFirstComma);
+        String valueTwoString   = value.substring(indexOfFirstComma + 1, indexOfSecondComma + 1);
+        String valueThreeString = value.substring(indexOfSecondComma + 1, indexOfClosedParentheses);
 
-        double valueOne   = Double.parseDouble(valueOneString);
-        double valueTwo   = Double.parseDouble(valueTwoString);
-        double valueThree = Double.parseDouble(valueThreeString);
-
-        return new double[]{valueOne, valueTwo, valueThree};
+        return new double[]{
+                Double.parseDouble(valueOneString),
+                Double.parseDouble(valueTwoString),
+                Double.parseDouble(valueThreeString)
+        };
     }
 
     private boolean isLoadable(@NonNull Field field) {
@@ -449,10 +444,10 @@ public final class ConstantsLoader {
         boolean fieldIsFinal  = Modifier.isFinal(modifiers);
 
         if (!fieldIsPublic || !fieldIsStatic || fieldIsFinal) {
-            String message = "Field " + fieldName + " cannot be loaded";
+            String message = "Field " + fieldName + " Cannot Be Loaded";
 
             if (!fieldIsPublic) message += "\nReason: Field Is Not Public";
-            if (!fieldIsStatic) message += "\nReason: Field Is No Static";
+            if (!fieldIsStatic) message += "\nReason: Field Is Not Static";
             if (fieldIsFinal)   message += "\nReason: Field Is Final";
 
             debugger.addMessage(message);
