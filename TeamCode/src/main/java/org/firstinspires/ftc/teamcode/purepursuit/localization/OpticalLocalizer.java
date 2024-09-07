@@ -14,7 +14,7 @@ public final class OpticalLocalizer implements Localizer {
     private final SparkFunOTOS opticalOdometrySensor;
 
     /**
-     * The pose value before the kalman filter is applied.
+     * Pose before kalman filter is applied, should only be used for debugging the filter
      */
     public Pose2D rawPose;
 
@@ -49,12 +49,11 @@ public final class OpticalLocalizer implements Localizer {
 
     @Override public void update() {
         Pose2D rawPose = opticalOdometrySensor.getPosition();
-
-        double rawX = rawPose.x;
-        double rawY = rawPose.y;
-        double rawH = rawPose.h;
-
-        pose = new Pose2D(filter.estimate(rawX), filter.estimate(rawY), filter.estimate(rawH));
+        pose = new Pose2D(
+                filter.estimate(rawPose.x),
+                filter.estimate(rawPose.y),
+                filter.estimate(rawPose.h)
+        );
         velocity = opticalOdometrySensor.getVelocity();
     }
 
