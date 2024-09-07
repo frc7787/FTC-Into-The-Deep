@@ -48,5 +48,9 @@ public final class Constants {
         public static double LINEAR_SCALAR = 1.0;
         public static double ANGULAR_SCALAR = 1.0;
         public static int  IMU_CALIBRATION_SAMPLES = 255;
+
+        public static double Q = 0.3;
+        public static double R = 3.0;
+        public static int N = 3;
     }
 }
