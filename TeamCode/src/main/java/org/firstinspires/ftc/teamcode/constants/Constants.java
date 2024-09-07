@@ -55,5 +55,9 @@ public final class Constants {
         public static int  IMU_CALIBRATION_SAMPLES = 255;
         public static AngleUnit ANGLE_UNIT       = AngleUnit.RADIANS;
         public static DistanceUnit DISTANCE_UNIT = DistanceUnit.INCH;
+
+        public static double Q = 0.3;
+        public static double R = 3.0;
+        public static int N = 3;
     }
 }
