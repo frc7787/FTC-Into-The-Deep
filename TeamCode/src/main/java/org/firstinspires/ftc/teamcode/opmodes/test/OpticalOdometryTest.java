@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
+import static org.firstinspires.ftc.teamcode.utility.playstationcontroller.PlayStationController.*;
+
 import com.arcrobotics.ftclib.command.*;
 import com.arcrobotics.ftclib.command.button.GamepadButton;
 import com.arcrobotics.ftclib.gamepad.*;
@@ -16,6 +18,9 @@ public class OpticalOdometryTest extends CommandOpMode {
 
         schedule(
                 new RunCommand(() -> localizer.debug(telemetry)),
+                new RunCommand(
+                        () -> telemetry.addLine("Press Options On Either Controller To Reset")
+                ),
                 new RunCommand(telemetry::update)
         );
     }
@@ -24,8 +29,8 @@ public class OpticalOdometryTest extends CommandOpMode {
         GamepadEx driverGamepad   = new GamepadEx(gamepad1);
         GamepadEx operatorGamepad = new GamepadEx(gamepad2);
 
-        new GamepadButton(driverGamepad, GamepadKeys.Button.A)
-                .or(new GamepadButton(operatorGamepad, GamepadKeys.Button.B))
+        new GamepadButton(driverGamepad, OPTIONS)
+                .or(new GamepadButton(operatorGamepad, OPTIONS))
                 .whenActive(localizer::reset);
     }
 
