@@ -3,10 +3,14 @@ package org.firstinspires.ftc.teamcode.purepursuit.localization;
 import com.ThermalEquilibrium.homeostasis.Filters.FilterAlgorithms.KalmanFilter;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS.*;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import static  org.firstinspires.ftc.teamcode.constants.Constants.LocalizerConstants.*;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public final class OpticalLocalizer implements Localizer {
     private final KalmanFilter filter;
@@ -28,8 +32,8 @@ public final class OpticalLocalizer implements Localizer {
      */
     public Pose2D velocity;
 
-    public OpticalLocalizer(SparkFunOTOS opticalOdometrySensor) {
-        this.opticalOdometrySensor = opticalOdometrySensor;
+    public OpticalLocalizer(@NonNull HardwareMap hardwareMap) {
+        opticalOdometrySensor = hardwareMap.get(SparkFunOTOS.class, OPTICAL_ODOMETRY_NAME);
 
         filter = new KalmanFilter(Q, R, N);
 
@@ -45,6 +49,14 @@ public final class OpticalLocalizer implements Localizer {
         opticalOdometrySensor.calibrateImu(IMU_CALIBRATION_SAMPLES, false);
         opticalOdometrySensor.setAngularScalar(ANGULAR_SCALAR);
         opticalOdometrySensor.setLinearScalar(LINEAR_SCALAR);
+
+        pose     = new Pose2D(0,0,0);
+        velocity = new Pose2D(0,0,0);
+    }
+
+    public OpticalLocalizer(SparkFunOTOS opticalOdometrySensor, Pose2D pose) {
+        this.opticalOdometrySensor = opticalOdometrySensor;
+        this.pose = pose;
     }
 
     @Override public void update() {
