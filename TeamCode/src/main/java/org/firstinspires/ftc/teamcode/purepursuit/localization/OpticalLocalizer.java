@@ -2,18 +2,22 @@ package org.firstinspires.ftc.teamcode.purepursuit.localization;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS.*;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import static  org.firstinspires.ftc.teamcode.constants.Constants.LocalizerConstants.*;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public final class OpticalLocalizer implements Localizer {
     private final SparkFunOTOS opticalOdometrySensor;
 
     public Pose2D pose, velocity;
 
-    public OpticalLocalizer(SparkFunOTOS opticalOdometrySensor) {
-        this.opticalOdometrySensor = opticalOdometrySensor;
+    public OpticalLocalizer(@NonNull HardwareMap hardwareMap) {
+        opticalOdometrySensor = hardwareMap.get(SparkFunOTOS.class, OPTICAL_ODOMETRY_NAME);
 
         opticalOdometrySensor.resetTracking();
         opticalOdometrySensor.calibrateImu(IMU_CALIBRATION_SAMPLES, false);
@@ -43,7 +47,7 @@ public final class OpticalLocalizer implements Localizer {
         opticalOdometrySensor.setPosition(pose);
     }
 
-    @Override public void debug(Telemetry telemetry) {
+    @Override public void debug(@NonNull Telemetry telemetry) {
         telemetry.addData("X", pose.x);
         telemetry.addData("Y", pose.y);
         telemetry.addData("H", pose.h);

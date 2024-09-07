@@ -55,11 +55,9 @@ public final class DriveSubsystem extends SubsystemBase {
 
         HardwareMap hardwareMap = opMode.hardwareMap;
 
-        localizer
-                = new OpticalLocalizer(hardwareMap.get(SparkFunOTOS.class, OPTICAL_ODOMETRY_NAME));
+        localizer = new OpticalLocalizer(hardwareMap);
 
         imu = hardwareMap.get(IMU.class, IMU_NAME);
-
         imu.initialize(IMU_PARAMETERS);
         imu.resetYaw();
 
@@ -73,7 +71,6 @@ public final class DriveSubsystem extends SubsystemBase {
 
         MotorUtility.setDirections(REVERSE, frontLeftMotor, backLeftMotor);
         MotorUtility.setDirections(FORWARD, frontRightMotor, backRightMotor);
-
         MotorUtility.setMotorZeroPowerBehaviors(BRAKE, motors);
     }
 
@@ -92,8 +89,8 @@ public final class DriveSubsystem extends SubsystemBase {
         if (Math.abs(strafe) < STRAFE_DEAD_ZONE) strafe = 0.0;
         if (Math.abs(turn)   < TURN_DEAD_ZONE)   turn   = 0.0;
 
-        double thetaRadians = StrictMath.atan2(drive, strafe);
-        double power        = StrictMath.hypot(strafe, drive);
+        double thetaRadians = Math.atan2(drive, strafe);
+        double power        = Math.hypot(strafe, drive);
 
         double sinTheta = Math.sin(thetaRadians - Math.PI / 4.0);
         double cosTheta = Math.cos(thetaRadians - Math.PI / 4.0);
@@ -131,8 +128,8 @@ public final class DriveSubsystem extends SubsystemBase {
         if (Math.abs(strafe) < STRAFE_DEAD_ZONE) strafe = 0.0;
         if (Math.abs(turn)   < TURN_DEAD_ZONE)   turn   = 0.0;
 
-        double thetaRadians = StrictMath.atan2(drive, strafe);
-        double power        = StrictMath.hypot(strafe, drive);
+        double thetaRadians = Math.atan2(drive, strafe);
+        double power        = Math.hypot(strafe, drive);
 
         thetaRadians -= imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
