@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.utility.Debugger;
 import org.opencv.core.Scalar;
 
 import java.io.*;
@@ -64,7 +65,7 @@ public final class ConstantsSaver {
     }
 
     private void saveClass(@NonNull Class<?> clazz) {
-        String fileName = CONSTANTS_FILE_LOCATION + clazz.getSimpleName() + ".txt";
+        String fileName = SD_CARD_PATH + clazz.getSimpleName() + ".txt";
 
         try (FileWriter fileWriter = new FileWriter(new File(fileName))) {
             Field[] fields = clazz.getFields();
