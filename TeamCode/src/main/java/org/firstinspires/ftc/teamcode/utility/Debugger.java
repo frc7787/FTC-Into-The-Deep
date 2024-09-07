@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.constants;
+package org.firstinspires.ftc.teamcode.utility;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.constants.exceptions.MalformedPropertyExce
 
 import java.util.ArrayList;
 
-final class Debugger {
+public final class Debugger {
     private final ArrayList<String> output;
 
     @Nullable
