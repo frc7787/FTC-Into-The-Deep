@@ -12,7 +12,6 @@ public final class DataLogger {
 
     public DataLogger(String fileName) {
         this.logFileName = fileName;
-
         data = new ArrayList<>();
     }
 
