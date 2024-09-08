@@ -63,4 +63,10 @@ public final class Constants {
         public static double R = 3.0;
         public static int N = 3;
     }
+
+    public static class AprilTagConstants {
+        public static int GAIN          = 0;
+        public static int EXPOSURE_MS   = 2;
+        public static int WHITE_BALANCE = 4000;
+    }
 }
