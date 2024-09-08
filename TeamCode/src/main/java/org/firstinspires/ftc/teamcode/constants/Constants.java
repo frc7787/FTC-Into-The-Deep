@@ -10,7 +10,10 @@ public final class Constants {
     public static class FileConstants {
         @SuppressLint("sdCardPath")
         public static final String SD_CARD_PATH
-            = "/sdcard/FIRST/java/src/org/firstinspires/ftc/teamcode/Constants/";
+                = "/sdcard/FIRST/java/src/org/firstinspires/ftc/teamcode/";
+
+        public static final String CONSTANTS_FILE_PATH = SD_CARD_PATH + "Constants/";
+        public static final String APRIL_TAG_LOG_FILE_PATH = SD_CARD_PATH + "AprilTagLogs/";
     }
 
     public static class DrivebaseConstants {
@@ -48,9 +51,5 @@ public final class Constants {
         public static double LINEAR_SCALAR = 1.0;
         public static double ANGULAR_SCALAR = 1.0;
         public static int  IMU_CALIBRATION_SAMPLES = 255;
-
-        public static double Q = 0.3;
-        public static double R = 3.0;
-        public static int N = 3;
     }
 }
