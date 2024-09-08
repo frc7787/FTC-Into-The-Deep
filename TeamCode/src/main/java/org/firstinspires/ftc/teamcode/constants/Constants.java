@@ -52,4 +52,10 @@ public final class Constants {
         public static double ANGULAR_SCALAR = 1.0;
         public static int  IMU_CALIBRATION_SAMPLES = 255;
     }
+
+    public static class AprilTagConstants {
+        public static int GAIN          = 0;
+        public static int EXPOSURE_MS   = 2;
+        public static int WHITE_BALANCE = 4000;
+    }
 }
