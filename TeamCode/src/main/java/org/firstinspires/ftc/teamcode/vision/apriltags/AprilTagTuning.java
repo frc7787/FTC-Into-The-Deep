@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.utility.DataLogger;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.*;
 import static org.firstinspires.ftc.teamcode.constants.Constants.AprilTagConstants.*;
+import static org.firstinspires.ftc.teamcode.utility.playstationcontroller.PlayStationController.*;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -21,11 +22,11 @@ import java.util.concurrent.TimeUnit;
 @TeleOp(name = "Utility - April Tag Tuning", group = "Utility")
 public class AprilTagTuning extends CommandOpMode {
     private AprilTagProcessor aprilTagProcessor;
+    private VisionPortal visionPortal;
     private DataLogger aprilTagLogger;
 
     private static final int DESIRED_TAG_ID = 5; // -1 locks on to any tag
 
-    private VisionPortal visionPortal;
 
     private int minExposure, maxExposure, exposure;
     private int minGain, gain, maxGain;
@@ -35,7 +36,10 @@ public class AprilTagTuning extends CommandOpMode {
         initializeAprilTagDetection();
         initializeCamera();
 
+        configureBindings();
+
         aprilTagLogger = new DataLogger("AprilTagLogFile");
+        aprilTagLogger.addLine("t,y,p,r,d,b"); // Add heading
 
         schedule(
                 new RunCommand(this::updateDetections),
@@ -45,27 +49,34 @@ public class AprilTagTuning extends CommandOpMode {
 
     private void configureBindings() {
         GamepadEx driverGamepad = new GamepadEx(gamepad1);
+
+        new GamepadButton(driverGamepad, DPAD_UP)
+                .whenActive(() -> exposure++);
+        new GamepadButton(driverGamepad, DPAD_DOWN)
+                .whenActive(() -> exposure--);
+        new GamepadButton(driverGamepad, TRIANGLE)
+                .whenActive(() -> gain += 10);
+        new GamepadButton(driverGamepad, CROSS)
+                .whenActive(() -> gain -= 10);
+        new GamepadButton(driverGamepad, LEFT_BUMPER)
+                .whenActive(() -> whiteBalance += 10);
+        new GamepadButton(driverGamepad, RIGHT_BUMPER)
+                .whenActive(() -> whiteBalance -= 10);
     }
 
     private void updateDetections() {
         List<AprilTagDetection> currentDetections = aprilTagProcessor.getDetections();
 
-        int numberOfTags = currentDetections.size();
-
-        if (numberOfTags > 0 ) {
-            telemetry.addData("Number of Tags Detected", currentDetections.size());
-        } else {
-            telemetry.addLine("No tags currently detected");
-        }
+        telemetry.addData("Number Of Tags", currentDetections.size());
 
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata == null) continue;
 
-            if (DESIRED_TAG_ID < 0 || detection.id == DESIRED_TAG_ID) {
+            if (detection.id == DESIRED_TAG_ID) {
                 aprilTagLogger.addLine(detectionAsString(detection));
 
-                telemetry.addData("Detected Tag", detection.id);
-                telemetry.addData("Distance From Tag", detection.ftcPose.range);
+                telemetry.addData("Id", detection.id);
+                telemetry.addData("Range", detection.ftcPose.range);
                 telemetry.addData("Yaw", detection.ftcPose.yaw);
                 telemetry.addData("Pitch", detection.ftcPose.pitch);
                 telemetry.addData("Roll", detection.ftcPose.roll);
