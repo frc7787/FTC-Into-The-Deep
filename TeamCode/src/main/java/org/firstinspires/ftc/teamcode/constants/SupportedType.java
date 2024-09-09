@@ -3,10 +3,14 @@ package org.firstinspires.ftc.teamcode.constants;
 import androidx.annotation.NonNull;
 
 import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.*;
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.HardwareDevice.Manufacturer;
 import com.qualcomm.robotcore.hardware.*;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.opencv.core.Scalar;
 
 import java.lang.reflect.Field;
@@ -38,6 +42,7 @@ enum SupportedType {
 	// ---------------------------------------------------------------------------------------------
 	STRING, SERVO_DIRECTION, MOTOR_DIRECTION, ZERO_POWER_BEHAVIOUR,
 	SPARK_FUN_POSE_2D, RUN_MODE, SCALAR, LOGO_FACING_DIRECTION, USB_FACING_DIRECTION,
+	ANGLE_UNIT, DISTANCE_UNIT,
 	UNSUPPORTED;
 
 	/**
@@ -67,6 +72,8 @@ enum SupportedType {
 		if (fieldType == Scalar.class)                                return SCALAR;
 		if (fieldType == LogoFacingDirection.class) 			      return LOGO_FACING_DIRECTION;
 		if (fieldType == UsbFacingDirection.class)                    return USB_FACING_DIRECTION;
+		if (fieldType == AngleUnit.class)                             return ANGLE_UNIT;
+		if (fieldType == DistanceUnit.class)                          return DISTANCE_UNIT;
 
 		return UNSUPPORTED;
 	}
