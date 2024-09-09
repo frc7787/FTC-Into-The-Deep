@@ -13,5 +13,5 @@ public interface Localizer {
 
     void setPosition(Pose2D pose2D);
 
-    void debug(@NonNull Telemetry telemetry);
+    void debug();
 }

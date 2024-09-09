@@ -5,22 +5,22 @@ import static org.firstinspires.ftc.teamcode.utility.playstationcontroller.PlayS
 import com.arcrobotics.ftclib.command.*;
 import com.arcrobotics.ftclib.command.button.GamepadButton;
 import com.arcrobotics.ftclib.gamepad.*;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.purepursuit.localization.OpticalLocalizer;
 
-public class OpticalOdometryTest extends CommandOpMode {
+@TeleOp(name = "Test - Optical Odometry", group = "Test")
+public final class OpticalOdometryTest extends CommandOpMode {
     private OpticalLocalizer localizer;
 
     @Override public void initialize() {
-        OpticalLocalizer localizer = new OpticalLocalizer(hardwareMap);
+        OpticalLocalizer localizer = new OpticalLocalizer(hardwareMap, telemetry);
 
         configureBindings();
 
         schedule(
-                new RunCommand(() -> localizer.debug(telemetry)),
-                new RunCommand(
-                        () -> telemetry.addLine("Press Options On Either Controller To Reset")
-                ),
+                new RunCommand(localizer::update),
+                new RunCommand(localizer::debug),
                 new RunCommand(telemetry::update)
         );
     }

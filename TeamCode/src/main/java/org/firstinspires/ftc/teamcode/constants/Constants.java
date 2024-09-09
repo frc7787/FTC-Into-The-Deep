@@ -3,7 +3,11 @@ package org.firstinspires.ftc.teamcode.constants;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.IMU;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public final class Constants {
 
@@ -44,9 +48,12 @@ public final class Constants {
         public static double ENCODER_TICKS_PER_REVOLUTION    = 2000.0;
 
         // Spark Fun
+        public static SparkFunOTOS.Pose2D OFFSET = new SparkFunOTOS.Pose2D(-1.5, 6.125, 0.0);
         public static String OPTICAL_ODOMETRY_NAME = "sparkFunOTOS";
         public static double LINEAR_SCALAR = 1.0;
         public static double ANGULAR_SCALAR = 1.0;
         public static int  IMU_CALIBRATION_SAMPLES = 255;
+        public static AngleUnit ANGLE_UNIT       = AngleUnit.RADIANS;
+        public static DistanceUnit DISTANCE_UNIT = DistanceUnit.INCH;
     }
 }

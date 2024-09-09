@@ -96,11 +96,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         this.pose = position;
     }
 
-    @Override public void debug(@NonNull Telemetry telemetry) {
-        telemetry.addData("Global X Position", pose.x);
-        telemetry.addData("Global Y Position", pose.y);
-        telemetry.addData("Global Heading", pose.h);
-    }
+    @Override public void debug() {return;}
 
     private double normalizeAngle(double angle) {
        double scaledAngle = angle % 360.0;
