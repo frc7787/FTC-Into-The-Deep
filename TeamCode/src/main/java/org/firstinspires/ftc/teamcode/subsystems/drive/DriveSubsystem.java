@@ -92,8 +92,8 @@ public final class DriveSubsystem extends SubsystemBase {
         if (Math.abs(strafe) < STRAFE_DEAD_ZONE) strafe = 0.0;
         if (Math.abs(turn)   < TURN_DEAD_ZONE)   turn   = 0.0;
 
-        double thetaRadians = StrictMath.atan2(drive, strafe);
-        double power        = StrictMath.hypot(strafe, drive);
+        double thetaRadians = Math.atan2(drive, strafe);
+        double power        = Math.hypot(strafe, drive);
 
         double sinTheta = Math.sin(thetaRadians - Math.PI / 4.0);
         double cosTheta = Math.cos(thetaRadians - Math.PI / 4.0);
