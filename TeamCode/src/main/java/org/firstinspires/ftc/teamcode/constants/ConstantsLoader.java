@@ -9,6 +9,8 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.*;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.constants.exceptions.MalformedPropertyException;
 import org.firstinspires.ftc.teamcode.constants.exceptions.NoAssociatedConstantsFileException;
 import org.opencv.core.Scalar;
@@ -242,9 +244,9 @@ public final class ConstantsLoader {
                 return Servo.Direction.REVERSE;
             default:
                 throw new MalformedPropertyException(
-                        servoDirectionString,
+                        key,
                         "Failed To Parse Direction",
-                        key);
+                        servoDirectionString);
         }
     }
 
@@ -262,9 +264,9 @@ public final class ConstantsLoader {
                 return DcMotorSimple.Direction.REVERSE;
             default:
                 throw new MalformedPropertyException(
-                        motorDirectionString,
+                        key,
                         "Failed To Parse Direction",
-                        key
+                        motorDirectionString
                 );
         }
     }
@@ -284,9 +286,9 @@ public final class ConstantsLoader {
                 return DcMotor.ZeroPowerBehavior.UNKNOWN;
             default:
                 throw new MalformedPropertyException(
-                        zeroPowerBehaviorString,
+                        key,
                         "Failed To Parse ZeroPowerBehavior",
-                        key
+                        zeroPowerBehaviorString
                 );
         }
     }
@@ -312,9 +314,9 @@ public final class ConstantsLoader {
                 return DcMotor.RunMode.STOP_AND_RESET_ENCODER;
             default:
                 throw new MalformedPropertyException(
-                        runModeString,
+                        key,
                         "Failed To Parse As RunMode",
-                        key
+                        runModeString
                 );
         }
     }
@@ -340,9 +342,9 @@ public final class ConstantsLoader {
                 return UsbFacingDirection.FORWARD;
             default:
                 throw new MalformedPropertyException(
-                        USBFacingDirectionString,
+                        key,
                         "Failed To Parse As UsbFacingDirection",
-                        key
+                        USBFacingDirectionString
                 );
         }
     }
@@ -368,9 +370,9 @@ public final class ConstantsLoader {
                return LogoFacingDirection.BACKWARD;
            default:
                throw new MalformedPropertyException(
-                       logoFacingString,
+                       key,
                        "Failed To Parse As LogoFacingDirection",
-                       key
+                       logoFacingString
                );
        }
     }
@@ -386,9 +388,9 @@ public final class ConstantsLoader {
             return new SparkFunOTOS.Pose2D(poseValues[0], poseValues[1], poseValues[2]);
         } catch (NumberFormatException numberFormatException) {
             throw new MalformedPropertyException(
-                    poseString,
+                    key,
                     numberFormatException.getMessage(),
-                    key
+                    poseString
             );
         }
     }
@@ -405,13 +407,63 @@ public final class ConstantsLoader {
             scalarValues = parseThreePartValue(scalarString);
         } catch (NumberFormatException numberFormatException) {
             throw new MalformedPropertyException(
-                    scalarString,
+                    key,
                     numberFormatException.getMessage(),
-                    key
+                    scalarString
             );
         }
 
         return new Scalar((int) scalarValues[0], (int) scalarValues[1], (int) scalarValues[2]);
+    }
+
+    @NonNull private AngleUnit loadAngleUnit(
+            @NonNull String key,
+            @NonNull Properties properties
+    ) throws MalformedPropertyException {
+        String angleUnitString = properties.getProperty(key);
+
+        switch (angleUnitString.toLowerCase()) {
+            case "radians":
+            case "rad":
+                return AngleUnit.RADIANS;
+            case "degrees":
+            case "deg":
+                return AngleUnit.DEGREES;
+            default:
+                throw new MalformedPropertyException(
+                        key,
+                        "Cannot Parse As AngleUnit",
+                       angleUnitString
+                );
+        }
+    }
+
+    @NonNull private DistanceUnit loadDistanceUnit(
+            @NonNull String key,
+            @NonNull Properties properties
+    ) throws MalformedPropertyException {
+        String distanceUnitString = properties.getProperty(key);
+
+        switch (distanceUnitString.toLowerCase()) {
+            case "cm":
+            case "centimeter":
+                return DistanceUnit.CM;
+            case "m":
+            case "meter":
+                return DistanceUnit.METER;
+            case "in":
+            case "inches":
+                return DistanceUnit.INCH;
+            case "mm":
+            case "millimeter":
+                return DistanceUnit.MM;
+            default:
+                throw new MalformedPropertyException(
+                        key,
+                        "Failed To Parse As DistanceUnit",
+                        distanceUnitString
+                );
+        }
     }
 
     @NonNull private double[] parseThreePartValue(
