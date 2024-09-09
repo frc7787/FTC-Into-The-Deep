@@ -22,6 +22,8 @@ public final class OpticalOdometryTest extends CommandOpMode {
                 new RunCommand(() -> localizer.debug(telemetry)),
                 new RunCommand(localizer::update),
                 new RunCommand(localizer::debug),
+                new RunCommand(localizer::update),
+                new RunCommand(localizer::debug),
                 new RunCommand(telemetry::update)
         );
     }
