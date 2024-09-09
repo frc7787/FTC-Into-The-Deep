@@ -210,6 +210,12 @@ public final class ConstantsLoader {
                 case USB_FACING_DIRECTION:
                     field.set(fieldName, loadUsbFacingDirection(fieldName, properties));
                     break;
+                case ANGLE_UNIT:
+                    field.set(fieldName, loadAngleUnit(fieldName, properties));
+                    break;
+                case DISTANCE_UNIT:
+                    field.set(fieldName, loadDistanceUnit(fieldName, properties));
+                    break;
                 case UNSUPPORTED:
                     String issue = "Failed To Load Field " + fieldName
                                    + "\nReason: Field Type Not Supported";
