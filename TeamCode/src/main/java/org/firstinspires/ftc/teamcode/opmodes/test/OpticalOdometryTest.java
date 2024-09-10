@@ -14,7 +14,7 @@ public final class OpticalOdometryTest extends CommandOpMode {
     private OpticalLocalizer localizer;
 
     @Override public void initialize() {
-        OpticalLocalizer localizer = new OpticalLocalizer(hardwareMap, telemetry);
+        localizer = new OpticalLocalizer(hardwareMap, telemetry);
 
         configureBindings();
 
