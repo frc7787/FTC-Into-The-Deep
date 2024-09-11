@@ -104,7 +104,7 @@ public final class ConstantsSaver {
                 case UNSUPPORTED:
                     String issue = "Failed To Save Field " + fieldName
                                  + "\nReason: " + field.getType().getSimpleName() + " Is Not A"
-                                 + "\nSupported Type.";
+                                 + "Supported Type.";
                     debugger.addMessage(issue);
                     return;
                 default: // All other types don't need anything special to save them
