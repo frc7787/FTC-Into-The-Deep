@@ -45,7 +45,7 @@ public final class Constants {
         public static String LEFT_DEAD_WHEEL_NAME  = DrivebaseConstants.BACK_LEFT_DRIVE_MOTOR_NAME;
         public static String RIGHT_DEAD_WHEEL_NAME = DrivebaseConstants.BACK_RIGHT_DRIVE_MOTOR_NAME;
 
-        public static double TRACK_WIDTH_INCHES              = 11.2;
+        public static double TRACK_WIDTH_INCHES              = 11.21;
         public static double DEAD_WHEEL_DIAMETER_INCHES      = 1.88976;
         public static double DEAD_WHEEL_CIRCUMFERENCE_INCHES = Math.PI * DEAD_WHEEL_DIAMETER_INCHES;
         public static double ENCODER_TICKS_PER_REVOLUTION    = 2000.0;
