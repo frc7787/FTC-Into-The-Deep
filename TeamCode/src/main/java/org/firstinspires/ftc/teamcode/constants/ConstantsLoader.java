@@ -13,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.constants.exceptions.MalformedPropertyException;
 import org.firstinspires.ftc.teamcode.constants.exceptions.NoAssociatedConstantsFileException;
+import org.firstinspires.ftc.teamcode.utility.Debugger;
 import org.opencv.core.Scalar;
 
 import java.io.*;
@@ -44,7 +45,7 @@ public final class ConstantsLoader {
     }
 
     @NonNull private List<File> loadConstantsFiles() {
-        File constantsDirectory = new File(CONSTANTS_FILE_LOCATION);
+        File constantsDirectory = new File(SD_CARD_PATH);
 
         if (constantsDirectory.isFile()) {
             String issue = "Failed To Load Constants File Directory"
@@ -128,7 +129,7 @@ public final class ConstantsLoader {
         Properties properties = new Properties();
 
         try {
-            properties.load(new FileInputStream(CONSTANTS_FILE_LOCATION + fileName));
+            properties.load(new FileInputStream(SD_CARD_PATH + fileName));
             for (Field field : clazz.getFields()) {
                 try {
                     loadField(field, properties);
