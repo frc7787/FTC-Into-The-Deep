@@ -45,6 +45,9 @@ public final class Constants {
         public static double DEAD_WHEEL_DIAMETER_INCHES      = 1.88976;
         public static double DEAD_WHEEL_CIRCUMFERENCE_INCHES = Math.PI * DEAD_WHEEL_DIAMETER_INCHES;
         public static double ENCODER_TICKS_PER_REVOLUTION    = 2000.0;
+        public static double Q = 1.0;
+        public static double R = 1.0;
+        public static int N = 1;
 
         // Spark Fun
         public static String OPTICAL_ODOMETRY_NAME = "sparkFunOTOS";
