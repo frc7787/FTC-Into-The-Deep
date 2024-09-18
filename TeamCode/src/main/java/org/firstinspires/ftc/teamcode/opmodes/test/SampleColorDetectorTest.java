@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
-import static org.firstinspires.ftc.teamcode.vision.SampleColorDetector.SampleColor.*;
-
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -17,7 +15,7 @@ public class SampleColorDetectorTest extends CommandOpMode {
 
 
     @Override public void initialize() {
-        SampleColorDetector colorDetector = new SampleColorDetector(YELLOW);
+        SampleColorDetector colorDetector = new SampleColorDetector(telemetry);
 
         int cameraMonitorViewId = hardwareMap
                 .appContext

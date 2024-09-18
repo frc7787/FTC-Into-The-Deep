@@ -5,6 +5,10 @@ import android.annotation.SuppressLint;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.IMU;
 
+import org.opencv.core.Core;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+
 public final class Constants {
 
     public static class FileConstants {
@@ -60,5 +64,27 @@ public final class Constants {
         public static int GAIN          = 0;
         public static int EXPOSURE_MS   = 2;
         public static int WHITE_BALANCE = 4000;
+    }
+
+    public static class VisionConstants {
+        public static int ERODE_PASSES = 5;
+
+        public static volatile Scalar BOUNDING_RECTANGLE_COLOR = new Scalar(255, 0, 0);
+
+        public static Scalar LOW_HSV_RANGE_BLUE  = new Scalar(97, 50, 0);
+        public static Scalar HIGH_HSV_RANGE_BLUE = new Scalar(125, 255, 255);
+
+        public static Scalar LOW_HSV_RANGE_RED_ONE  = new Scalar(160, 100, 0);
+        public static Scalar HIGH_HSV_RANGE_RED_ONE = new Scalar(180, 255, 255);
+
+        public static Scalar LOW_HSV_RANGE_RED_TWO  = new Scalar(0, 100, 0);
+        public static Scalar HIGH_HSV_RANGE_RED_TWO = new Scalar(10, 255, 255);
+
+        public static Scalar LOW_HSV_RANGE_YELLOW = new Scalar(20, 80, 0);
+        public static Scalar HIGH_HSV_RANGE_YELLOW = new Scalar(30, 255, 255);
+
+        public static final Point CV_ANCHOR        = new Point(-1, -1);
+        public static final Scalar CV_BORDER_VALUE = new Scalar(-1);
+        public static final int CV_BORDER_TYPE     = Core.BORDER_CONSTANT;
     }
 }

@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.vision;
 
+import static org.firstinspires.ftc.teamcode.vision.SampleColorDetector.SampleColor.*;
+import static org.firstinspires.ftc.teamcode.constants.Constants.VisionConstants.*;
+
 import androidx.annotation.NonNull;
 
-import org.opencv.core.Core;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
@@ -10,6 +13,9 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * OpenCV pipeline to detect the prop in FTC 2023 - 2024 Centerstage
+ */
 public class SampleColorDetector extends OpenCvPipeline {
     public enum SampleColor {
         RED,
@@ -17,32 +23,7 @@ public class SampleColorDetector extends OpenCvPipeline {
         YELLOW
     }
 
-    private SampleColor color;
-
-    public SampleColorDetector(@NonNull SampleColor color) {
-        this.color = color;
-    }
-
-    public static int VIEW_DISPLAYED = 1;
-    public static int ERODE_PASSES   = 9;
-
-    public static volatile Scalar BOUNDING_RECTANGLE_COLOR = new Scalar(255, 0, 0);
-
-    public static Scalar LOW_HSV_RANGE_BLUE  = new Scalar(97, 100, 0);
-    public static Scalar HIGH_HSV_RANGE_BLUE = new Scalar(125, 255, 255);
-
-    private static final Scalar LOW_HSV_RANGE_RED_ONE  = new Scalar(160, 100, 0);
-    private static final Scalar HIGH_HSV_RANGE_RED_ONE = new Scalar(180, 255, 255);
-
-    private static final Scalar LOW_HSV_RANGE_RED_TWO  = new Scalar(0, 100, 0);
-    private static final Scalar HIGH_HSV_RANGE_RED_TWO = new Scalar(10, 255, 255);
-
-    private static final Scalar LOW_HSV_RANGE_YELLOW = new Scalar(45, 100, 0);
-    private static final Scalar HIGH_HSV_RANGE_YELLOW = new Scalar(55, 100, 255);
-
-    private static final Point CV_ANCHOR        = new Point(-1, -1);
-    private static final Scalar CV_BORDER_VALUE = new Scalar(-1);
-    private static final int CV_BORDER_TYPE     = Core.BORDER_CONSTANT;
+    private Telemetry telemetry;
 
     private final Mat hsvMat          = new Mat(),
                       threshold0      = new Mat(),
@@ -52,20 +33,30 @@ public class SampleColorDetector extends OpenCvPipeline {
                       thresholdOutput = new Mat(),
                       erodeOutput     = new Mat();
 
+    public SampleColorDetector(@NonNull Telemetry telemetry) {
+        this.telemetry = telemetry;
+    }
+
     @Override
     public Mat processFrame(Mat input) {
-        // Convert color to HSV
-        Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV);
         Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV);
 
+        detectSample(input, RED);
+
+        return input;
+    }
+
+    private void detectSample(Mat input, SampleColor color) {
         switch (color) {
-            case BLUE:
-                Core.inRange(hsvMat, LOW_HSV_RANGE_BLUE, HIGH_HSV_RANGE_BLUE, thresholdOutput);
-                break;
             case RED:
+                // Check if the image is in range, then adds the ranges together
                 Core.inRange(hsvMat, LOW_HSV_RANGE_RED_ONE, HIGH_HSV_RANGE_RED_ONE, threshold0);
-                Core.inRange(hsvMat, LOW_HSV_RANGE_RED_TWO, HIGH_HSV_RANGE_RED_TWO, threshold0);
-                Core.add(threshold0, threshold0, thresholdOutput);
+                Core.inRange(hsvMat, LOW_HSV_RANGE_RED_TWO, HIGH_HSV_RANGE_RED_TWO, threshold1);
+                Core.add(threshold0, threshold1, thresholdOutput);
+                break;
+            case BLUE:
+                // Checks if the image is in range
+                Core.inRange(hsvMat, LOW_HSV_RANGE_BLUE, HIGH_HSV_RANGE_BLUE, thresholdOutput);
                 break;
             case YELLOW:
                 Core.inRange(hsvMat, LOW_HSV_RANGE_YELLOW, HIGH_HSV_RANGE_YELLOW, thresholdOutput);
@@ -102,24 +93,10 @@ public class SampleColorDetector extends OpenCvPipeline {
             boundRect[i] = Imgproc.boundingRect(new MatOfPoint(contoursPoly[i].toArray()));
         }
 
-        // Draw a bounding box over all rectangles
         for (Rect rect : boundRect) {
-           Imgproc.rectangle(hsvMat, rect, BOUNDING_RECTANGLE_COLOR);
+            Imgproc.rectangle(input, rect, BOUNDING_RECTANGLE_COLOR);
         }
 
-        if (VIEW_DISPLAYED == 1) {
-            return input;
-        } else if (VIEW_DISPLAYED == 2) {
-            return threshold0;
-        } else if (VIEW_DISPLAYED == 3) {
-            return threshold1;
-        } else if (VIEW_DISPLAYED == 4) {
-            return thresholdOutput;
-        } else if (VIEW_DISPLAYED == 5) {
-            return erodeOutput;
-        }
-
-        return hsvMat;
+        telemetry.update();
     }
-
 }
