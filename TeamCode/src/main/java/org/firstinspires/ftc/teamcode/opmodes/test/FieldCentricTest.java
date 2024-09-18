@@ -1,18 +1,17 @@
 package org.firstinspires.ftc.teamcode.opmodes.test;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
-import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.drive.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.drive.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.drive.commands.FieldCentricCommand;
 
 @TeleOp(name = "Test - Field Centric")
 public class FieldCentricTest extends CommandOpMode {
 
     @Override public void initialize() {
-        DriveSubsystem driveSubsystem = new DriveSubsystem(this);
+        MecanumDriveSubsystem driveSubsystem = new MecanumDriveSubsystem(this);
         GamepadEx driverGamepad = new GamepadEx(gamepad1);
 
         register(driveSubsystem);

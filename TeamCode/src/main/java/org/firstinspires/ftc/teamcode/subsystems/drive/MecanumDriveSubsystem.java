@@ -19,7 +19,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.constants.Constants;
 import org.firstinspires.ftc.teamcode.purepursuit.localization.Localizer;
 import org.firstinspires.ftc.teamcode.purepursuit.localization.OpticalLocalizer;
 import org.firstinspires.ftc.teamcode.utility.MotorUtility;
@@ -38,7 +37,7 @@ import org.firstinspires.ftc.teamcode.utility.MotorUtility;
  *     </ul>
  * </p>
  */
-public final class DriveSubsystem extends SubsystemBase {
+public final class MecanumDriveSubsystem extends SubsystemBase {
     private final DcMotorImplEx frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor;
     private final IMU imu;
 
@@ -50,7 +49,7 @@ public final class DriveSubsystem extends SubsystemBase {
      * Constructs a new drive subsystems
      * @param opMode The opMode you are running ; To obtain the HardwareMap and Telemetry objects
      */
-    public DriveSubsystem(@NonNull OpMode opMode) {
+    public MecanumDriveSubsystem(@NonNull OpMode opMode) {
         telemetry = opMode.telemetry;
 
         HardwareMap hardwareMap = opMode.hardwareMap;

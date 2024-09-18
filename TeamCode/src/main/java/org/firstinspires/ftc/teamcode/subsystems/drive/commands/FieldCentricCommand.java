@@ -4,12 +4,12 @@ import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 
-import org.firstinspires.ftc.teamcode.subsystems.drive.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.drive.MecanumDriveSubsystem;
 
 import java.util.function.DoubleSupplier;
 
 public final class FieldCentricCommand extends CommandBase {
-    private final DriveSubsystem driveSubsystem;
+    private final MecanumDriveSubsystem driveSubsystem;
     private final DoubleSupplier driveSupplier, strafeSupplier, turnSupplier;
 
     /**
@@ -24,7 +24,7 @@ public final class FieldCentricCommand extends CommandBase {
      *                     method reference, or lambda expression.
      */
     public FieldCentricCommand(
-            @NonNull DriveSubsystem driveSubsystem,
+            @NonNull MecanumDriveSubsystem driveSubsystem,
             @NonNull DoubleSupplier driveSupplier,
             @NonNull DoubleSupplier strafeSupplier,
             @NonNull DoubleSupplier turnSupplier
